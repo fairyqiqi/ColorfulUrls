@@ -1,0 +1,29 @@
+{
+  "name": "tinyurl",
+  "version": "1.0.0",
+  "description": "A full stack tiny url solution",
+  "main": "server.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "node server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/fairyqiqi/TinyUrl.git"
+  },
+  "author": "fairyqiqi",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/fairyqiqi/TinyUrl/issues"
+  },
+  "homepage": "https://github.com/fairyqiqi/TinyUrl#readme",
+  "dependencies": {
+    "angular-chart.js": "^1.0.2",
+    "body-parser": "^1.15.2",
+    "express": "^4.14.0",
+    "express-useragent": "^0.2.4",
+    "geoip-lite": "^1.1.8",
+    "mongoose": "^4.5.9",
+    "redis": "^2.6.2"
+  }
+}
