@@ -23,7 +23,10 @@
     "express": "^4.14.0",
     "express-useragent": "^0.2.4",
     "geoip-lite": "^1.1.8",
+    "lodash": "^4.15.0",
+    "moment": "^2.14.1",
     "mongoose": "^4.5.9",
-    "redis": "^2.6.2"
+    "redis": "^2.6.2",
+    "twix": "^1.1.1"
   }
 }

@@ -1,12 +1,96 @@
 <div class="row">
-    <div class="col-md-5 col-md-offset-2" ng-style="{'background-color':mainBackground}" >
+    <div class="col-md-5 col-md-offset-2" ng-style="{'background-color':mainBackground}">
         <div class="row">
-            <h4>Your long URL: </h4>
+            <h4>Your Long URL: </h4>
             <a ng-href="{{longUrl}}" target="_blank">{{longUrl}}</a>
         </div>
         <div class="row">
-            <h4>Your short URL: </h4>
+            <h4>Your Colorful URL: </h4>
             <a ng-href="{{colorfulUrl}}" target="_blank">{{colorfulUrlToShow}}</a>
+        </div>
+    </div>
+    <div class="col-md-3">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Total Clicks
+            </div>
+            <div class="panel-body">
+                {{totalClicks}}
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-8 col-md-offset-2">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Clicks for the past:
+                <a href="javascript:void(0);" ng-click="getClicksByTime('hour')" ng-class="{'text-muted': time === 'hour'}">Hour</a>
+                <a href="javascript:void(0);" ng-click="getClicksByTime('day')" ng-class="{'text-muted': time === 'day'}">Day</a>
+                <a href="javascript:void(0);" ng-click="getClicksByTime('month')" ng-class="{'text-muted': time === 'month'}">Month</a>
+            </div>
+        </div>
+        <div class="panel-body">
+            <canvas id="line" class="chart chart-line"
+                    chart-data="lineData" chart-labels="lineLabels">
+            </canvas>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Referer
+            </div>
+            <div class="panel-body">
+                <canvas id="pie" class="chart chart-pie"
+                        chart-data="pieData" chart-labels="pieLabels" chart-options="options">
+                </canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Country
+            </div>
+            <div class="panel-body">
+                <canvas id="bar" class="chart chart-bar"
+                        chart-data="barData" chart-labels="barLabels" chart-series="series">
+                </canvas>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Platform
+            </div>
+            <div class="panel-body">
+                <canvas id="doughnut" class="chart chart-doughnut"
+                        chart-data="doughnutData" chart-labels="doughnutLabels">
+                </canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="col-md-6">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Browser
+            </div>
+            <div class="panel-body">
+                <canvas id="base" class="chart-horizontal-bar"
+                        chart-data="baseData" chart-labels="baseLabels" >
+                </canvas>
+            </div>
         </div>
     </div>
 </div>
