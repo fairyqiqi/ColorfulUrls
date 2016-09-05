@@ -8,7 +8,7 @@ app.controller("homeController", ["$scope", "$http", "$location", function ($sco
             .then(function (response) {
                 //Because it's angular, the address always starts with /#/,
                 //so now the address becomes, say, "http://xxxx:xxx/#/urls/2"
-                $location.path("/urls/" + response.data.colorfulUrl); //
+                $location.path("/urls/" + response.data.colorfulUrl);
             });
     }
 }]);

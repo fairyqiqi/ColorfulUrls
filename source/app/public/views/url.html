@@ -1,8 +1,9 @@
-<div class="jumbotron" ng-style="{'background-color':mainBackground}">
-    <h2>Your Long URL: </h2>
-    <a ng-href="{{longUrl}}" target="_blank">{{longUrl}}</a>
-    <h2>Your Colorful URL: </h2>
-    <a ng-href="{{colorfulUrl}}" target="_blank">{{colorfulUrlToShow}}</a>
+<div class="jumbotron" ng-style="{'background-color':mainBackground, 'box-shadow': '0px 5px 5px #888888' }">
+    <h3>Your Url:
+    <a ng-href="{{longUrl}}" target="_blank">{{longUrl}}</a></h3>
+    <h3>Your Colorful Url:
+    <a ng-href="{{colorfulUrl}}" target="_blank">{{colorfulUrlToShow}}</a></h3>
+    <h3>Your Color Code: {{mainBackground}}</h3>
 </div>
 
 <div class="row">
@@ -26,7 +27,7 @@
             <div class="panel-heading">
                 Total Clicks
             </div>
-            <div class="panel-body">
+            <div class="panel-body parent-height">
                 {{totalClicks}}
             </div>
         </div>

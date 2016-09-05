@@ -1,6 +1,7 @@
 var app = angular.module("tinyurlApp");
 
 app.controller("urlController", ["$scope", "$http", "$routeParams", "socket", function ($scope, $http, $routeParams, socket) {
+
     $http.get("/api/v1/urls/" + $routeParams.colorfulUrl)
         .then(function (response) {
             var data = response.data;
@@ -25,11 +26,6 @@ app.controller("urlController", ["$scope", "$http", "$routeParams", "socket", fu
             return 'rgba(' + r + ',' + g + ',' + b + ',' + a/10 + ')';
         }
     }
-
-    $http.get("/api/v1/urls/" + $routeParams.colorfulUrl + "/totalClicks")
-        .then(function (response) {
-            $scope.totalClicks = response.data;
-        });
 
     $scope.getClicksByTime = function (time) {
         $scope.lineLabels = [];
@@ -57,6 +53,13 @@ app.controller("urlController", ["$scope", "$http", "$routeParams", "socket", fu
     };
     $scope.getClicksByTime('hour');
 
+    var renderTotalClicks = function () {
+        $http.get("/api/v1/urls/" + $routeParams.colorfulUrl + "/totalClicks")
+            .then(function (response) {
+                $scope.totalClicks = response.data;
+            });
+    };
+
     var renderChart = function (chart, topic) {
         $http.get("/api/v1/urls/" + $routeParams.colorfulUrl + "/" + topic)
             .then(function (response) {
@@ -74,24 +77,17 @@ app.controller("urlController", ["$scope", "$http", "$routeParams", "socket", fu
         });
     }
 
-    renderChart('pie', 'referer');
-    renderChart('bar', 'country');
-    renderChart('doughnut', 'platform');
-    renderChart('base', 'browser');
+    var renderCharts = function () {
+        renderTotalClicks();
+        renderChart('pie', 'referer');
+        renderChart('bar', 'country');
+        renderChart('doughnut', 'platform');
+        renderChart('base', 'browser');
+    };
+    renderCharts();
 
-    socket.on('totalClicks', function (msg) {
-        $scope.totalClicks = msg;
-    });
-    socket.on('referer', function (msg) {
-        updateChart('pie', msg);
-    });
-    socket.on('country', function (msg) {
-        updateChart('bar', msg);
-    });
-    socket.on('platform', function (msg) {
-        updateChart('doughnut', msg);
-    });
-    socket.on('browser', function (msg) {
-        updateChart('base', msg);
+    socket.on('newRequestLogged', function (msg) {
+        $scope.getClicksByTime($scope.time);
+        renderCharts();
     });
 }]);

@@ -28,21 +28,7 @@ var logRequest = function (colorfulUrl, req) {
     var request = new RequestModel(reqInfo);
     request.save(function (err, callback) {
         //TODO: handle error
-        getUrlInfo(colorfulUrl, "totalClicks", function (data) {
-            io.emit('totalClicks', data);
-        });
-        getUrlInfo(colorfulUrl, "referer", function (data) {
-            io.emit('referer', data);
-        });
-        getUrlInfo(colorfulUrl, "country", function (data) {
-            io.emit('country', data);
-        });
-        getUrlInfo(colorfulUrl, "platform", function (data) {
-            io.emit('platform', data);
-        });
-        getUrlInfo(colorfulUrl, "browser", function (data) {
-            io.emit('browser', data);
-        });
+        io.emit('newRequestLogged');
     });
 };
 
@@ -55,7 +41,6 @@ var getUrlInfo = function (colorfulUrl, topic, callback) {
     }
 
     var groupId = '';
-
     if (topic === 'hour') {
         groupId = {
             year: {$year: "$timestamp"},
