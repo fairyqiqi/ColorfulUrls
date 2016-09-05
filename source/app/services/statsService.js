@@ -3,6 +3,7 @@ var RequestModel = require('../models/requestModel');
 var _ = require('lodash/core');
 var moment = require('moment');
 require('twix');
+var io = require('../server');
 
 var logRequest = function (colorfulUrl, req) {
     var reqInfo = {};
@@ -25,7 +26,24 @@ var logRequest = function (colorfulUrl, req) {
     reqInfo.timestamp = new Date();
 
     var request = new RequestModel(reqInfo);
-    request.save();
+    request.save(function (err, callback) {
+        //TODO: handle error
+        getUrlInfo(colorfulUrl, "totalClicks", function (data) {
+            io.emit('totalClicks', data);
+        });
+        getUrlInfo(colorfulUrl, "referer", function (data) {
+            io.emit('referer', data);
+        });
+        getUrlInfo(colorfulUrl, "country", function (data) {
+            io.emit('country', data);
+        });
+        getUrlInfo(colorfulUrl, "platform", function (data) {
+            io.emit('platform', data);
+        });
+        getUrlInfo(colorfulUrl, "browser", function (data) {
+            io.emit('browser', data);
+        });
+    });
 };
 
 var getUrlInfo = function (colorfulUrl, topic, callback) {
@@ -83,11 +101,13 @@ var getUrlInfo = function (colorfulUrl, topic, callback) {
             }
         }
     ], function (err, data) {
-        if (topic != 'hour' && topic != 'day' && topic != 'month') {
+        //If there's no data in db, or it's not time related data, don't enrich.
+        if (data.length == 0 || (topic != 'hour' && topic != 'day' && topic != 'month')) {
             callback(data);
             return;
         }
 
+        //For time related data, enrich them so that they contain points for each time interval.
         var enrichedData = [];
 
         var timeIterator = '';

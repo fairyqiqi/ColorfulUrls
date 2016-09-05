@@ -1,6 +1,6 @@
 var app = angular.module("tinyurlApp");
 
-app.controller("urlController", ["$scope", "$http", "$routeParams", function ($scope, $http, $routeParams) {
+app.controller("urlController", ["$scope", "$http", "$routeParams", "socket", function ($scope, $http, $routeParams, socket) {
     $http.get("/api/v1/urls/" + $routeParams.colorfulUrl)
         .then(function (response) {
             var data = response.data;
@@ -22,8 +22,7 @@ app.controller("urlController", ["$scope", "$http", "$routeParams", function ($s
             if (a === 'A') {
                 a = 10;
             }
-            var rgb = 'rgba(' + r + ',' + g + ',' + b + ',' + a/10 + ')';
-            return rgb;
+            return 'rgba(' + r + ',' + g + ',' + b + ',' + a/10 + ')';
         }
     }
 
@@ -59,18 +58,40 @@ app.controller("urlController", ["$scope", "$http", "$routeParams", function ($s
     $scope.getClicksByTime('hour');
 
     var renderChart = function (chart, topic) {
-        $scope[chart + 'Labels'] = [];
-        $scope[chart + 'Data'] = [];
         $http.get("/api/v1/urls/" + $routeParams.colorfulUrl + "/" + topic)
             .then(function (response) {
-                response.data.forEach(function (info) {
-                    $scope[chart + 'Labels'].push(info._id);
-                    $scope[chart + 'Data'].push(info.count);
-                });
+                updateChart(chart, response.data);
             });
     };
+
+    function updateChart(chart, data) {
+        $scope[chart + 'Labels'] = [];
+        $scope[chart + 'Data'] = [];
+
+        data.forEach(function (info) {
+            $scope[chart + 'Labels'].push(info._id);
+            $scope[chart + 'Data'].push(info.count);
+        });
+    }
+
     renderChart('pie', 'referer');
     renderChart('bar', 'country');
     renderChart('doughnut', 'platform');
     renderChart('base', 'browser');
+
+    socket.on('totalClicks', function (msg) {
+        $scope.totalClicks = msg;
+    });
+    socket.on('referer', function (msg) {
+        updateChart('pie', msg);
+    });
+    socket.on('country', function (msg) {
+        updateChart('bar', msg);
+    });
+    socket.on('platform', function (msg) {
+        updateChart('doughnut', msg);
+    });
+    socket.on('browser', function (msg) {
+        updateChart('base', msg);
+    });
 }]);

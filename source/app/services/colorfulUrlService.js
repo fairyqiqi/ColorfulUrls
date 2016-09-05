@@ -64,20 +64,23 @@ function enrichLongUrl(longUrl) {
 }
 
 function generateColorfulUrl() {
-    var r = getRandomColorHexCode();    //red
-    var g = getRandomColorHexCode();    //green
-    var b = getRandomColorHexCode();    //blue
-    var a = getRandomIntInclusive(1, 10).toString(); //alpha: actual value should be 0.1~1
-    if (a === '10') {
-        a = "A";
+    var red = getRandomColorHexCode();
+    var green = getRandomColorHexCode();
+    var blue = getRandomColorHexCode();
+    var alpha = getRandomIntInclusive(1, 10).toString(); //alpha: actual value should be 0.1~1
+    if (alpha === '10') {
+        alpha = "A"; //make "alpha" always have 1 char
     }
-    var rgba = r + g + b + a;
-    return rgba;
+    return red + green + blue + alpha;
 }
 
 function getRandomColorHexCode() {
     var number = getRandomIntInclusive(0, 255);
-    return number.toString(16);
+    var numberString = number.toString(16);
+    if (numberString.length == 1) {
+        numberString = '0' + numberString; //make numberString always have 2 chars
+    }
+    return numberString;
 }
 
 function getRandomIntInclusive(min, max) {

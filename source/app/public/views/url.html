@@ -1,28 +1,12 @@
-<div class="row">
-    <div class="col-md-5 col-md-offset-2" ng-style="{'background-color':mainBackground}">
-        <div class="row">
-            <h4>Your Long URL: </h4>
-            <a ng-href="{{longUrl}}" target="_blank">{{longUrl}}</a>
-        </div>
-        <div class="row">
-            <h4>Your Colorful URL: </h4>
-            <a ng-href="{{colorfulUrl}}" target="_blank">{{colorfulUrlToShow}}</a>
-        </div>
-    </div>
-    <div class="col-md-3">
-        <div class="panel panel-default">
-            <div class="panel-heading">
-                Total Clicks
-            </div>
-            <div class="panel-body">
-                {{totalClicks}}
-            </div>
-        </div>
-    </div>
+<div class="jumbotron" ng-style="{'background-color':mainBackground}">
+    <h2>Your Long URL: </h2>
+    <a ng-href="{{longUrl}}" target="_blank">{{longUrl}}</a>
+    <h2>Your Colorful URL: </h2>
+    <a ng-href="{{colorfulUrl}}" target="_blank">{{colorfulUrlToShow}}</a>
 </div>
 
 <div class="row">
-    <div class="col-md-8 col-md-offset-2">
+    <div class="col-md-8">
         <div class="panel panel-default">
             <div class="panel-heading">
                 Clicks for the past:
@@ -35,6 +19,16 @@
             <canvas id="line" class="chart chart-line"
                     chart-data="lineData" chart-labels="lineLabels">
             </canvas>
+        </div>
+    </div>
+    <div class="col-md-4">
+        <div class="panel panel-default">
+            <div class="panel-heading">
+                Total Clicks
+            </div>
+            <div class="panel-body">
+                {{totalClicks}}
+            </div>
         </div>
     </div>
 </div>
