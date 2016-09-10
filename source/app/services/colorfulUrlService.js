@@ -6,13 +6,15 @@ var port = process.env.REDIS_PORT_6379_TCP_PORT || '6379';
 var redisClient = redis.createClient(port, host);
 
 function preLoadAllUrlToRedis() {
-    ColorfulUrlModel.find({}, function (err, urls) {
+    var query = ColorfulUrlModel.find({});
+    query.limit(1000);
+    query.exec(function (err, urls) {
         if (err) { console.log(err); return;}
         urls.forEach(function (url) {
             redisClient.set(url.colorfulUrl, url.longUrl);
             redisClient.set(url.longUrl, url.colorfulUrl);
         });
-        console.log("------------Redis: all urls reloaded");
+        console.log("------------Redis: urls pre-loaded");
     });
 }
 
