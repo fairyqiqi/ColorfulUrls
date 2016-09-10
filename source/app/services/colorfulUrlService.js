@@ -5,23 +5,33 @@ var host = process.env.REDIS_PORT_6379_TCP_ADDR || '127.0.0.1';
 var port = process.env.REDIS_PORT_6379_TCP_PORT || '6379';
 var redisClient = redis.createClient(port, host);
 
+function preLoadAllUrlToRedis() {
+    ColorfulUrlModel.find({}, function (err, urls) {
+        urls.forEach(function (url) {
+            redisClient.set(url.colorfulUrl, url.longUrl);
+            redisClient.set(url.longUrl, url.colorfulUrl);
+        });
+        console.log("------------Redis: all urls reloaded");
+    });
+}
+
 function getColorfulUrl(reqLongUrl, callback) {
     var longUrl = enrichLongUrl(reqLongUrl);
 
     redisClient.get(longUrl, function (err, colorfulUrl) {
         if (colorfulUrl) {
-            console.log("------------Redis: found colorful url - " + colorfulUrl);
+            console.log("------------Redis: found colorful url for long url " + reqLongUrl + " - " + colorfulUrl);
             callback({
                 longUrl: longUrl,
                 colorfulUrl: colorfulUrl
             })
         } else {
+            console.log("------------Redis: not found colorful url for long url " + reqLongUrl);
             ColorfulUrlModel.findOne({ longUrl: longUrl }, function (err, url) {
                 var colorfulUrl;
                 //TODO: handle error
                 if (url) {
                     colorfulUrl = url.colorfulUrl;
-
                 } else {
                     colorfulUrl = generateColorfulUrl();
                     var unique = false;
@@ -114,6 +124,7 @@ function getLongUrl(colorfulUrl, callback) {
 }
 
 module.exports = {
+    preLoadAllUrlToRedis: preLoadAllUrlToRedis,
     getColorfulUrl: getColorfulUrl,
     getLongUrl: getLongUrl
 };

@@ -1,6 +1,5 @@
 var geoip = require('geoip-lite');
 var RequestModel = require('../models/requestModel');
-var _ = require('lodash/core');
 var moment = require('moment');
 require('twix');
 var io = require('../server');
@@ -41,6 +40,7 @@ var getUrlInfo = function (colorfulUrl, topic, callback) {
     }
 
     var groupId = '';
+    var startTime, endTime, filter, getTimestamp;
     if (topic === 'hour') {
         groupId = {
             year: {$year: "$timestamp"},
@@ -48,6 +48,21 @@ var getUrlInfo = function (colorfulUrl, topic, callback) {
             day: {$dayOfMonth: "$timestamp"},
             hour: {$hour: "$timestamp"},
             minute: {$minute: "$timestamp"}
+        };
+        //get previous hour
+        startTime = new Date(new Date().setHours(new Date().getHours() - 1));
+        endTime = new Date();
+        filter = {
+            colorfulUrl: colorfulUrl,
+            timestamp: {
+                $lte: endTime,
+                $gt: startTime
+            }
+        };
+        //month in moment library is 0 based!!!!!!!
+        getTimestamp = function (groupId) {
+            var utcTime = moment.utc([groupId.year, groupId.month-1, groupId.day, groupId.hour, groupId.minute]).local();
+            return new Date(utcTime.year(), utcTime.month(), utcTime.date(), utcTime.hour(), utcTime.minute());
         }
     } else if (topic === 'day') {
         groupId = {
@@ -55,22 +70,50 @@ var getUrlInfo = function (colorfulUrl, topic, callback) {
             month: {$month: "$timestamp"},
             day: {$dayOfMonth: "$timestamp"},
             hour: {$hour: "$timestamp"}
+        };
+        startTime = new Date(new Date().setDate(new Date().getDate() - 1));
+        endTime = new Date(new Date().setHours(new Date().getHours() + 1));
+        filter = {
+            colorfulUrl: colorfulUrl,
+            timestamp: {
+                $lte: endTime,
+                $gt: startTime
+            }
+        };
+        getTimestamp = function (groupId) {
+            var utcTime = moment.utc([groupId.year, groupId.month-1, groupId.day, groupId.hour]).local();
+            return new Date(utcTime.year(), utcTime.month(), utcTime.date(), utcTime.hour());
         }
     } else if (topic === 'month') {
         groupId = {
             year: {$year: "$timestamp"},
             month: {$month: "$timestamp"},
             day: {$dayOfMonth: "$timestamp"}
+        };
+        startTime = new Date(new Date().setMonth(new Date().getMonth() - 1));
+        endTime = new Date();
+        filter = {
+            colorfulUrl: colorfulUrl,
+            timestamp: {
+                $lte: endTime,
+                $gt: startTime
+            }
+        };
+        getTimestamp = function (groupId) {
+            var utcTime = moment.utc([groupId.year, groupId.month-1, groupId.day]).local();
+            //local() will make 00:00 UTC to 08:00 HKT, we don't want the 8 hours difference, so we create a new Date below
+            return new Date(utcTime.year(), utcTime.month(), utcTime.date());
         }
     } else {
         groupId = '$' + topic;
+        filter = {
+            colorfulUrl: colorfulUrl
+        };
     }
 
     RequestModel.aggregate([
         {
-            $match: {
-                colorfulUrl: colorfulUrl
-            }
+            $match: filter
         },
         {
             $sort: {
@@ -93,7 +136,7 @@ var getUrlInfo = function (colorfulUrl, topic, callback) {
         }
 
         //For time related data, enrich them so that they contain points for each time interval.
-        var enrichedData = [];
+        var range = moment(startTime).twix(endTime);
 
         var timeIterator = '';
         if (topic === 'hour') {
@@ -104,23 +147,6 @@ var getUrlInfo = function (colorfulUrl, topic, callback) {
             timeIterator = 'days'
         }
 
-        //TODO: from now back to 1 hour / day / month
-        var startTime = data[0]._id;
-        var endTime = data[data.length-1]._id;
-        var range =
-            moment({
-                year: startTime.year,
-                month: startTime.month-1, //month is zero-based for moment!!!!!
-                day: startTime.day,
-                hour: startTime.hour,
-                minute: startTime.minute })
-            .twix({
-                year: endTime.year,
-                month: endTime.month-1,
-                day: endTime.day,
-                hour: endTime.hour,
-                minute: endTime.minute});
-
         var iterator = {};
         if (topic === 'hour'){
             iterator = range.iterate(5, timeIterator);
@@ -128,24 +154,28 @@ var getUrlInfo = function (colorfulUrl, topic, callback) {
             iterator = range.iterate(timeIterator);
         }
 
+        var enrichedData = [];
         while (iterator.hasNext()) {
-            var currentMinute = iterator.next();
+            var currentMoment = iterator.next();
             enrichedData.push({
                 _id : {
-                    year: currentMinute.year(),
-                    month: currentMinute.month() + 1,
-                    day: currentMinute.date(), //date() is day of the month, day() is day of the week (confusing)
-                    hour: currentMinute.hour(),
-                    minute: currentMinute.minute()
+                    year: currentMoment.year(),
+                    month: currentMoment.month()+1, //month in data points on UI is 1-based
+                    day: currentMoment.date(), //date() is day of the month, day() is day of the week (confusing)
+                    hour: currentMoment.hour(),
+                    minute: currentMoment.minute()
                 },
                 count: 0
             });
         }
+
         data.forEach(function (record) {
             for (var i = 0; i < enrichedData.length; i ++) {
-                if (_.isEqual(enrichedData[i]._id, record._id)) {
-                    enrichedData[i].count = record.count;
-                    return;
+                var recordDate = getTimestamp(record._id);
+                var bucketDate = new Date(enrichedData[i]._id.year, enrichedData[i]._id.month-1, enrichedData[i]._id.day, enrichedData[i]._id.hour, enrichedData[i]._id.minute);
+                if (recordDate <= bucketDate) {
+                    enrichedData[i].count += record.count;
+                    break;
                 }
             }
         });

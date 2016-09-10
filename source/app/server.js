@@ -9,6 +9,7 @@ var useragent = require('express-useragent');
 var indexRouter = require('./routes/index');
 var restRouter = require('./routes/rest');
 var redirectRouter = require('./routes/redirect');
+var colorfulUrlService = require('./services/colorfulUrlService');
 
 app.use('/node_modules', express.static(__dirname + "/node_modules"));
 
@@ -22,10 +23,15 @@ app.use('/api/v1', restRouter);
 
 app.use('/:colorfulUrl', redirectRouter);
 
-http.listen(7777);
+colorfulUrlService.preLoadAllUrlToRedis();
+
+//var port = parseInt(process.argv.slice(2));
+var port = 7777;
+http.listen(port);
 
 io.on('connection', function (socket) {
     console.log('a user connected');
+
     socket.on('disconnect', function () {
         console.log('user disconected');
     })
