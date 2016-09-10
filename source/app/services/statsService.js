@@ -26,7 +26,7 @@ var logRequest = function (colorfulUrl, req) {
 
     var request = new RequestModel(reqInfo);
     request.save(function (err, callback) {
-        //TODO: handle error
+        if (err) { console.log(err); return;}
         io.emit('newRequestLogged');
     });
 };
@@ -71,6 +71,7 @@ var getUrlInfo = function (colorfulUrl, topic, callback) {
             day: {$dayOfMonth: "$timestamp"},
             hour: {$hour: "$timestamp"}
         };
+        //get previous day
         startTime = new Date(new Date().setDate(new Date().getDate() - 1));
         endTime = new Date(new Date().setHours(new Date().getHours() + 1));
         filter = {
@@ -90,6 +91,7 @@ var getUrlInfo = function (colorfulUrl, topic, callback) {
             month: {$month: "$timestamp"},
             day: {$dayOfMonth: "$timestamp"}
         };
+        //get previous month
         startTime = new Date(new Date().setMonth(new Date().getMonth() - 1));
         endTime = new Date();
         filter = {

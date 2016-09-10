@@ -25,9 +25,9 @@ app.use('/:colorfulUrl', redirectRouter);
 
 colorfulUrlService.preLoadAllUrlToRedis();
 
-//var port = parseInt(process.argv.slice(2));
 var port = 7777;
 http.listen(port);
+console.log('Server started at port ' + port);
 
 io.on('connection', function (socket) {
     console.log('a user connected');

@@ -7,6 +7,7 @@ var redisClient = redis.createClient(port, host);
 
 function preLoadAllUrlToRedis() {
     ColorfulUrlModel.find({}, function (err, urls) {
+        if (err) { console.log(err); return;}
         urls.forEach(function (url) {
             redisClient.set(url.colorfulUrl, url.longUrl);
             redisClient.set(url.longUrl, url.colorfulUrl);
@@ -29,7 +30,7 @@ function getColorfulUrl(reqLongUrl, callback) {
             console.log("------------Redis: not found colorful url for long url " + reqLongUrl);
             ColorfulUrlModel.findOne({ longUrl: longUrl }, function (err, url) {
                 var colorfulUrl;
-                //TODO: handle error
+                if (err) { console.log(err); return;}
                 if (url) {
                     colorfulUrl = url.colorfulUrl;
                 } else {
@@ -109,7 +110,7 @@ function getLongUrl(colorfulUrl, callback) {
             });
         } else {
             ColorfulUrlModel.findOne({ colorfulUrl : colorfulUrl}, function (err, url) {
-                //TODO: handle error
+                if (err) { console.log(err); return;}
                 if (url){
                     callback({
                         longUrl: url.longUrl,
