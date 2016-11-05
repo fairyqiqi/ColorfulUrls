@@ -57,29 +57,29 @@ Use Vagrant to run Ubuntu, then run docker in Ubutntu.
 
 # Docker commands
 
-- Build image
-  > docker build -t {image-name-in-lower-case}:latest .
+- Build image: 
+  `docker build -t {image-name-in-lower-case}:latest .`
 
-- Run container
-  > docker run --name {container-name} -p {port}:{port} -d {image-name-in-lower-case}
+- Run container: 
+  `docker run --name {container-name} -p {port}:{port} -d {image-name-in-lower-case}`
 
-- List images
-  > docker images
+- List images: 
+  `docker images`
   
-- List containers
-  > docker ps [-a]
+- List containers: 
+  `docker ps [-a]`
   
-- Delete image
-  > docker rmi {image-id}
+- Delete image: 
+  `docker rmi {image-id}`
   
-- Delete container
-  > docker rm {container-id}
+- Delete container: 
+  `docker rm {container-id}`
   
-- Delete all images
-  > docker rmi $(docker images -q)
+- Delete all images: 
+  `docker rmi $(docker images -q)`
 
-- Delete all containers  
-  > docker rm $(docker ps -q -a)
+- Delete all containers:   
+  `docker rm $(docker ps -q -a)`
   
 # How does it work
  
